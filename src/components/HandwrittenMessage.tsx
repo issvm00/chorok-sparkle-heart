@@ -39,18 +39,21 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
     return result;
   }, []);
 
-  const handleCandleClick = useCallback((index: number) => {
-    if (index !== candlesBlown) return;
-    setCandlesBlown((p) => p + 1);
-    import("canvas-confetti").then((mod) => {
-      mod.default({
-        particleCount: 60 + candlesBlown * 40,
-        spread: 90,
-        origin: { x: 0.5, y: 0.7 },
-        colors: ["#c084fc", "#fbbf24", "#f472b6", "#60a5fa", "#facc15"],
+  const handleCandleClick = useCallback(
+    (index: number) => {
+      if (index !== candlesBlown) return;
+      setCandlesBlown((p) => p + 1);
+      import("canvas-confetti").then((mod) => {
+        mod.default({
+          particleCount: 60 + candlesBlown * 40,
+          spread: 90,
+          origin: { x: 0.5, y: 0.7 },
+          colors: ["#c084fc", "#fbbf24", "#f472b6", "#60a5fa", "#facc15"],
+        });
       });
-    });
-  }, [candlesBlown]);
+    },
+    [candlesBlown],
+  );
 
   return (
     <section
@@ -82,32 +85,55 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
           />
 
           {/* Corner ornaments */}
-          <div className="absolute top-3 left-3 w-6 h-6 border-t border-l rounded-tl-sm" style={{ borderColor: "hsl(45 80% 55% / 0.2)" }} />
-          <div className="absolute top-3 right-3 w-6 h-6 border-t border-r rounded-tr-sm" style={{ borderColor: "hsl(45 80% 55% / 0.2)" }} />
-          <div className="absolute bottom-3 left-3 w-6 h-6 border-b border-l rounded-bl-sm" style={{ borderColor: "hsl(45 80% 55% / 0.2)" }} />
-          <div className="absolute bottom-3 right-3 w-6 h-6 border-b border-r rounded-br-sm" style={{ borderColor: "hsl(45 80% 55% / 0.2)" }} />
+          <div
+            className="absolute top-3 left-3 w-6 h-6 border-t border-l rounded-tl-sm"
+            style={{ borderColor: "hsl(45 80% 55% / 0.2)" }}
+          />
+          <div
+            className="absolute top-3 right-3 w-6 h-6 border-t border-r rounded-tr-sm"
+            style={{ borderColor: "hsl(45 80% 55% / 0.2)" }}
+          />
+          <div
+            className="absolute bottom-3 left-3 w-6 h-6 border-b border-l rounded-bl-sm"
+            style={{ borderColor: "hsl(45 80% 55% / 0.2)" }}
+          />
+          <div
+            className="absolute bottom-3 right-3 w-6 h-6 border-b border-r rounded-br-sm"
+            style={{ borderColor: "hsl(45 80% 55% / 0.2)" }}
+          />
 
           <div className="relative p-8 pt-6" dir="rtl">
             {/* Header */}
             <div className="text-center mb-5">
               <div className="inline-flex items-center gap-3 mb-3">
-                <div className="w-10 h-[1px]" style={{ background: "linear-gradient(to right, transparent, hsl(45 90% 65% / 0.5))" }} />
+                <div
+                  className="w-10 h-[1px]"
+                  style={{ background: "linear-gradient(to right, transparent, hsl(45 90% 65% / 0.5))" }}
+                />
                 <span className="text-2xl">💌</span>
-                <div className="w-10 h-[1px]" style={{ background: "linear-gradient(to left, transparent, hsl(45 90% 65% / 0.5))" }} />
+                <div
+                  className="w-10 h-[1px]"
+                  style={{ background: "linear-gradient(to left, transparent, hsl(45 90% 65% / 0.5))" }}
+                />
               </div>
-              <h3
-                className="font-panorama text-2xl tracking-wide"
-                style={{ color: "hsl(45 80% 75%)" }}
-              >
-                رسالة من صاحبك
+              <h3 className="font-panorama text-2xl tracking-wide" style={{ color: "hsl(45 80% 75%)" }}>
+                رسالة من القلب
               </h3>
             </div>
 
             {/* Ornamental divider */}
             <div className="flex items-center justify-center gap-2 mb-6">
-              <div className="flex-1 h-[1px]" style={{ background: "linear-gradient(to right, transparent, hsl(45 80% 55% / 0.3))" }} />
-              <span className="text-xs" style={{ color: "hsl(45 80% 55% / 0.4)" }}>✦</span>
-              <div className="flex-1 h-[1px]" style={{ background: "linear-gradient(to left, transparent, hsl(45 80% 55% / 0.3))" }} />
+              <div
+                className="flex-1 h-[1px]"
+                style={{ background: "linear-gradient(to right, transparent, hsl(45 80% 55% / 0.3))" }}
+              />
+              <span className="text-xs" style={{ color: "hsl(45 80% 55% / 0.4)" }}>
+                ✦
+              </span>
+              <div
+                className="flex-1 h-[1px]"
+                style={{ background: "linear-gradient(to left, transparent, hsl(45 80% 55% / 0.3))" }}
+              />
             </div>
 
             {/* Message area with full overlay */}
@@ -194,9 +220,17 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
               }`}
             >
               <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="flex-1 max-w-[40px] h-[1px]" style={{ background: "linear-gradient(to right, transparent, hsl(45 80% 55% / 0.3))" }} />
-                <span className="text-xs" style={{ color: "hsl(45 80% 55% / 0.3)" }}>✦</span>
-                <div className="flex-1 max-w-[40px] h-[1px]" style={{ background: "linear-gradient(to left, transparent, hsl(45 80% 55% / 0.3))" }} />
+                <div
+                  className="flex-1 max-w-[40px] h-[1px]"
+                  style={{ background: "linear-gradient(to right, transparent, hsl(45 80% 55% / 0.3))" }}
+                />
+                <span className="text-xs" style={{ color: "hsl(45 80% 55% / 0.3)" }}>
+                  ✦
+                </span>
+                <div
+                  className="flex-1 max-w-[40px] h-[1px]"
+                  style={{ background: "linear-gradient(to left, transparent, hsl(45 80% 55% / 0.3))" }}
+                />
               </div>
               <p className="font-panorama text-base" style={{ color: "hsl(45 70% 65% / 0.7)" }}>
                 صديقك الغالي 🤝
@@ -242,11 +276,7 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
                     onClick={() => handleCandleClick(i)}
                     disabled={!isNext}
                     className={`group relative flex flex-col items-center transition-all duration-300 focus:outline-none ${
-                      isNext
-                        ? "cursor-pointer scale-110"
-                        : isLit
-                        ? "cursor-default opacity-30"
-                        : "cursor-default"
+                      isNext ? "cursor-pointer scale-110" : isLit ? "cursor-default opacity-30" : "cursor-default"
                     }`}
                     aria-label={`شمعة ${i + 1}`}
                   >
