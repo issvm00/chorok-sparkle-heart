@@ -241,10 +241,3 @@
   background-size: 200% 200%;
   animation: shimmer 4s ease-in-out infinite;
 }
-  background: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--neon-pink)), hsl(var(--violet-glow)));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  background-size: 200% 200%;
-  animation: shimmer 4s ease-in-out infinite;
-}
