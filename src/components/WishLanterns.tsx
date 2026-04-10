@@ -5,119 +5,194 @@ interface Props {
   revealed: boolean;
 }
 
-interface Lantern {
+interface WishStar {
   id: number;
   emoji: string;
   wish: string;
-  released: boolean;
-  x: number;
-  color: string;
+  unlocked: boolean;
+  angle: number; // position on circle
 }
 
-const LANTERN_DATA = [
-  { emoji: "🎓", wish: "النجاح فكلشي", color: "hsl(45 80% 55%)" },
-  { emoji: "😊", wish: "السعادة ديما", color: "hsl(320 50% 50%)" },
-  { emoji: "💪", wish: "الصحة و العافية", color: "hsl(270 60% 55%)" },
-  { emoji: "⭐", wish: "تحقيق الأحلام", color: "hsl(220 80% 60%)" },
+const WISHES = [
+  { emoji: "🎓", wish: "النجاح فكل خطوة" },
+  { emoji: "💛", wish: "السعادة اللي ما عندها حدود" },
+  { emoji: "💪", wish: "الصحة و العافية ديما" },
+  { emoji: "⭐", wish: "تحقيق كل حلم عندك" },
+  { emoji: "🌙", wish: "راحة البال و الطمأنينة" },
+  { emoji: "🔥", wish: "الحماس و الإرادة القوية" },
 ];
 
 const WishLanterns = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
-  const [lanterns, setLanterns] = useState<Lantern[]>(
-    LANTERN_DATA.map((d, i) => ({
+  const [stars, setStars] = useState<WishStar[]>(
+    WISHES.map((w, i) => ({
       id: i,
-      ...d,
-      released: false,
-      x: 15 + (i % 2) * 55 + Math.random() * 15,
+      ...w,
+      unlocked: false,
+      angle: (360 / WISHES.length) * i - 90,
     }))
   );
-  const [allReleased, setAllReleased] = useState(false);
+  const [allDone, setAllDone] = useState(false);
+  const [activeWish, setActiveWish] = useState<string | null>(null);
 
-  const releaseLantern = useCallback((id: number) => {
-    setLanterns((prev) => {
-      const updated = prev.map((l) => (l.id === id ? { ...l, released: true } : l));
-      if (updated.every((l) => l.released)) {
-        setTimeout(() => setAllReleased(true), 500);
-        confetti({ particleCount: 60, spread: 80, origin: { x: 0.5, y: 0.5 }, colors: ["#a78bfa", "#fbbf24", "#f472b6"] });
+  const unlock = useCallback((id: number) => {
+    setStars((prev) => {
+      const updated = prev.map((s) => (s.id === id ? { ...s, unlocked: true } : s));
+      const wish = prev.find((s) => s.id === id)?.wish || "";
+      setActiveWish(wish);
+      setTimeout(() => setActiveWish(null), 2200);
+
+      if (updated.every((s) => s.unlocked)) {
+        setTimeout(() => {
+          setAllDone(true);
+          confetti({
+            particleCount: 100,
+            spread: 120,
+            origin: { x: 0.5, y: 0.5 },
+            colors: ["#a78bfa", "#fbbf24", "#f472b6", "#60a5fa"],
+          });
+        }, 600);
       }
       return updated;
     });
 
     confetti({
-      particleCount: 12,
-      spread: 30,
-      origin: { x: 0.5, y: 0.5 },
-      colors: ["#fbbf24", "#f59e0b"],
-      startVelocity: 12,
-      ticks: 40,
-      gravity: 0.5,
-      scalar: 0.6,
+      particleCount: 18,
+      spread: 50,
+      origin: { x: 0.5, y: 0.45 },
+      colors: ["#fbbf24", "#a78bfa"],
+      startVelocity: 15,
+      ticks: 35,
+      gravity: 0.6,
+      scalar: 0.7,
     });
   }, []);
+
+  const radius = 120;
 
   return (
     <section
       ref={ref}
       className="relative z-20 flex flex-col items-center justify-center min-h-screen px-4 py-16 snap-start"
     >
-      <div className={`w-full max-w-sm mx-auto transition-all duration-1000 ${revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}>
+      <div
+        className={`w-full max-w-md mx-auto transition-all duration-1000 ${
+          revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+        }`}
+      >
         {/* Header */}
-        <div className="text-center mb-10">
-          <h3 className="font-panorama text-4xl gradient-text mb-3">أمنيات لك</h3>
-          <p className="font-panorama text-base text-muted-foreground/50">إضغط على كل فانوس باش يطير 🏮</p>
+        <div className="text-center mb-6">
+          <h3 className="font-panorama text-4xl gradient-text mb-2">أمنيات لك</h3>
+          <p className="font-panorama text-sm text-muted-foreground/40">
+            إضغط على كل نجمة باش تكشف الأمنية ✨
+          </p>
         </div>
 
-        {/* Lanterns grid */}
-        <div className="relative h-80">
-          {lanterns.map((lantern, i) => (
-            <button
-              key={lantern.id}
-              onClick={() => !lantern.released && releaseLantern(lantern.id)}
-              disabled={lantern.released}
-              className={`absolute transition-all focus:outline-none ${
-                lantern.released
-                  ? "duration-[3000ms] ease-out"
-                  : "duration-500 cursor-pointer active:scale-110"
-              }`}
-              style={{
-                left: `${lantern.x}%`,
-                top: lantern.released ? "-120%" : `${20 + i * 18}%`,
-                opacity: lantern.released ? 0 : revealed ? 1 : 0,
-                transform: revealed && !lantern.released ? "scale(1)" : lantern.released ? "scale(0.5)" : "scale(0.6)",
-                transitionDelay: revealed && !lantern.released ? `${i * 200}ms` : "0ms",
-              }}
+        {/* Active wish toast */}
+        <div className="h-12 flex items-center justify-center mb-4">
+          {activeWish && (
+            <p
+              className="font-panorama text-lg text-center animate-fade-in-up"
+              style={{ color: "hsl(var(--secondary) / 0.9)" }}
+              dir="rtl"
             >
-              <div className="relative flex flex-col items-center">
-                <div
-                  className="absolute -inset-4 rounded-full blur-xl animate-pulse"
-                  style={{ background: `${lantern.color.replace(")", " / 0.25)")}` }}
-                />
-                <div
-                  className="relative w-20 h-24 rounded-2xl flex flex-col items-center justify-center glass-card"
-                  style={{
-                    border: `1px solid ${lantern.color.replace(")", " / 0.4)")}`,
-                    boxShadow: `0 0 20px ${lantern.color.replace(")", " / 0.15)")}`,
-                  }}
-                >
-                  <span className="text-3xl mb-1">{lantern.emoji}</span>
-                  <span className="font-panorama text-[11px] text-foreground/80 leading-tight text-center px-1" dir="rtl">
-                    {lantern.wish}
-                  </span>
-                </div>
-                <div className="relative mt-[-2px]">
-                  <div className="w-2 h-3 rounded-full animate-pulse" style={{ background: "hsl(var(--secondary))", filter: `drop-shadow(0 0 6px ${lantern.color})` }} />
-                </div>
-              </div>
-            </button>
-          ))}
+              {activeWish}
+            </p>
+          )}
         </div>
 
-        {/* All released message */}
-        {allReleased && (
-          <div className="text-center animate-fade-in-up mt-4">
-            <p className="font-panorama text-2xl font-bold" style={{ color: "hsl(var(--secondary) / 0.8)" }}>
-              كل الأمنيات طارت ليك 🌟
+        {/* Circle of stars */}
+        <div className="relative mx-auto" style={{ width: radius * 2 + 80, height: radius * 2 + 80 }}>
+          {/* Center glow */}
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full blur-3xl transition-opacity duration-1000"
+            style={{
+              background: "radial-gradient(circle, hsl(var(--gold) / 0.3), transparent)",
+              opacity: allDone ? 1 : 0.15,
+            }}
+          />
+
+          {/* Center text */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+            <p className="font-panorama text-xs text-muted-foreground/30">
+              {stars.filter((s) => s.unlocked).length}/{stars.length}
             </p>
-            <p className="font-panorama text-base text-muted-foreground/50 mt-2">
+          </div>
+
+          {stars.map((star, i) => {
+            const rad = (star.angle * Math.PI) / 180;
+            const x = Math.cos(rad) * radius;
+            const y = Math.sin(rad) * radius;
+
+            return (
+              <button
+                key={star.id}
+                onClick={() => !star.unlocked && unlock(star.id)}
+                disabled={star.unlocked}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 focus:outline-none transition-all duration-500"
+                style={{
+                  transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                  transitionDelay: revealed ? `${i * 100}ms` : "0ms",
+                  opacity: revealed ? 1 : 0,
+                  scale: revealed ? "1" : "0",
+                }}
+              >
+                <div className="relative group">
+                  {/* Glow ring */}
+                  <div
+                    className="absolute inset-0 rounded-full blur-lg transition-all duration-500"
+                    style={{
+                      background: star.unlocked
+                        ? "hsl(var(--gold) / 0.3)"
+                        : "hsl(var(--primary) / 0.1)",
+                      transform: star.unlocked ? "scale(2)" : "scale(1)",
+                    }}
+                  />
+
+                  {/* Star orb */}
+                  <div
+                    className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 ${
+                      !star.unlocked ? "cursor-pointer active:scale-90" : ""
+                    }`}
+                    style={{
+                      background: star.unlocked
+                        ? "linear-gradient(135deg, hsl(var(--gold) / 0.25), hsl(var(--primary) / 0.2))"
+                        : "hsl(var(--card) / 0.6)",
+                      border: `1px solid ${
+                        star.unlocked
+                          ? "hsl(var(--gold) / 0.4)"
+                          : "hsl(var(--border) / 0.3)"
+                      }`,
+                      boxShadow: star.unlocked
+                        ? "0 0 20px hsl(var(--gold) / 0.2), inset 0 0 10px hsl(var(--gold) / 0.1)"
+                        : "0 4px 20px hsl(0 0% 0% / 0.3)",
+                      backdropFilter: "blur(10px)",
+                    }}
+                  >
+                    <span className={`text-2xl transition-transform duration-500 ${star.unlocked ? "scale-110" : "group-active:scale-125"}`}>
+                      {star.emoji}
+                    </span>
+                  </div>
+
+                  {/* Pulse for unlocked */}
+                  {!star.unlocked && (
+                    <div
+                      className="absolute inset-0 rounded-full animate-pulse opacity-20"
+                      style={{ border: "1px solid hsl(var(--secondary) / 0.3)" }}
+                    />
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* All done */}
+        {allDone && (
+          <div className="text-center mt-8 animate-fade-in-up">
+            <p className="font-panorama text-2xl" style={{ color: "hsl(var(--secondary) / 0.85)" }}>
+              كل الأمنيات ليك يا شروق 🌟
+            </p>
+            <p className="font-panorama text-sm text-muted-foreground/40 mt-2">
               إن شاء الله تتحقق كاملة ✨
             </p>
           </div>
