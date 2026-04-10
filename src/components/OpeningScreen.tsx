@@ -5,177 +5,270 @@ interface Props {
   onOpen: () => void;
 }
 
-const stages = ["waiting", "countdown3", "countdown2", "countdown1", "burst", "gift", "opening"] as const;
-type Stage = (typeof stages)[number];
-
 const OpeningScreen = ({ onOpen }: Props) => {
-  const [stage, setStage] = useState<Stage>("waiting");
-  const [starsVisible, setStarsVisible] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [phase, setPhase] = useState<"idle" | "seal-cracking" | "envelope-opening" | "letter-rising" | "transitioning">("idle");
+  const [sealCracks, setSealCracks] = useState(0);
+  const [tapHint, setTapHint] = useState(true);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const starsRef = useRef<{ x: number; y: number; size: number; speed: number; opacity: number }[]>([]);
+  const animRef = useRef<number>(0);
 
-  // Start the sequence
-  const startSequence = useCallback(() => {
-    if (stage !== "waiting") return;
-    setStarsVisible(true);
-
-    setTimeout(() => setStage("countdown3"), 400);
-    setTimeout(() => setStage("countdown2"), 1400);
-    setTimeout(() => setStage("countdown1"), 2400);
-    setTimeout(() => {
-      setStage("burst");
-      // Big confetti burst
-      const colors = ["#a78bfa", "#fbbf24", "#f472b6", "#60a5fa", "#34d399", "#fcd34d"];
-      for (let i = 0; i < 5; i++) {
-        setTimeout(() => {
-          confetti({
-            particleCount: 60,
-            spread: 100 + i * 20,
-            origin: { x: 0.3 + Math.random() * 0.4, y: 0.4 + Math.random() * 0.2 },
-            colors,
-            startVelocity: 30 + i * 5,
-            ticks: 120,
-          });
-        }, i * 150);
-      }
-    }, 3400);
-    setTimeout(() => setStage("gift"), 4200);
-  }, [stage]);
-
-  const handleGiftClick = () => {
-    if (stage !== "gift") return;
-    setStage("opening");
-
-    // Epic confetti
-    const colors = ["#a78bfa", "#fbbf24", "#f472b6", "#60a5fa", "#34d399"];
-    const end = Date.now() + 1500;
-    const frame = () => {
-      confetti({
-        particleCount: 4,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 },
-        colors,
-      });
-      confetti({
-        particleCount: 4,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 },
-        colors,
-      });
-      if (Date.now() < end) requestAnimationFrame(frame);
-    };
-    frame();
-
-    setTimeout(onOpen, 1500);
-  };
-
-  // Auto-start on first interaction or after 2s
+  // Star field
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (stage === "waiting") startSequence();
-    }, 2000);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    const dpr = window.devicePixelRatio || 1;
 
-    const handleInteraction = () => {
-      if (stage === "waiting") startSequence();
+    const resize = () => {
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
-    window.addEventListener("click", handleInteraction, { once: true });
-    window.addEventListener("touchstart", handleInteraction, { once: true });
+    resize();
 
+    // Create stars
+    starsRef.current = Array.from({ length: 80 }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      size: Math.random() * 2 + 0.3,
+      speed: Math.random() * 0.3 + 0.05,
+      opacity: Math.random(),
+    }));
+
+    const animate = () => {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      starsRef.current.forEach((s) => {
+        s.opacity += Math.sin(Date.now() * 0.001 * s.speed) * 0.01;
+        s.opacity = Math.max(0.1, Math.min(1, s.opacity));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity * 0.6})`;
+        ctx.fill();
+      });
+      animRef.current = requestAnimationFrame(animate);
+    };
+    animate();
+
+    window.addEventListener("resize", resize);
     return () => {
-      clearTimeout(timer);
-      window.removeEventListener("click", handleInteraction);
-      window.removeEventListener("touchstart", handleInteraction);
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", resize);
     };
-  }, [stage, startSequence]);
+  }, []);
+
+  const handleSealTap = useCallback(() => {
+    if (phase !== "idle" && phase !== "seal-cracking") return;
+
+    const newCracks = sealCracks + 1;
+    setSealCracks(newCracks);
+    setTapHint(false);
+    setPhase("seal-cracking");
+
+    // Small burst each tap
+    confetti({
+      particleCount: 8,
+      spread: 40,
+      origin: { x: 0.5, y: 0.55 },
+      colors: ["#c9a44a", "#8b6914", "#d4a843"],
+      startVelocity: 15,
+      ticks: 60,
+      gravity: 1.5,
+      scalar: 0.6,
+    });
+
+    if (newCracks >= 3) {
+      // Seal breaks!
+      setTimeout(() => {
+        setPhase("envelope-opening");
+        // Gold confetti explosion
+        const colors = ["#c9a44a", "#fbbf24", "#f59e0b", "#d97706", "#a78bfa"];
+        confetti({ particleCount: 100, spread: 100, origin: { x: 0.5, y: 0.5 }, colors, startVelocity: 35 });
+      }, 300);
+
+      setTimeout(() => setPhase("letter-rising"), 1400);
+      setTimeout(() => {
+        setPhase("transitioning");
+        // Epic side confetti
+        const colors = ["#a78bfa", "#fbbf24", "#f472b6", "#60a5fa", "#34d399"];
+        const end = Date.now() + 1200;
+        const frame = () => {
+          confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors });
+          confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors });
+          if (Date.now() < end) requestAnimationFrame(frame);
+        };
+        frame();
+      }, 2800);
+      setTimeout(onOpen, 3800);
+    }
+  }, [phase, sealCracks, onOpen]);
 
   return (
-    <div
-      ref={containerRef}
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background overflow-hidden"
-    >
-      {/* Star field */}
-      <div className={`absolute inset-0 transition-opacity duration-2000 ${starsVisible ? "opacity-100" : "opacity-0"}`}>
-        {Array.from({ length: 50 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-foreground/80"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: Math.random() * 2.5 + 0.5,
-              height: Math.random() * 2.5 + 0.5,
-              animation: `sparkle ${2 + Math.random() * 3}s ease-in-out ${Math.random() * 3}s infinite`,
-            }}
-          />
-        ))}
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[hsl(260,30%,3%)] overflow-hidden">
+      <canvas ref={canvasRef} className="absolute inset-0" />
+
+      {/* Ambient aurora */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div
+          className="absolute w-[600px] h-[600px] rounded-full opacity-20"
+          style={{
+            background: "radial-gradient(circle, hsl(270 60% 55% / 0.4), transparent 70%)",
+            top: "-20%",
+            left: "-20%",
+            animation: "orbFloat 12s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute w-[500px] h-[500px] rounded-full opacity-15"
+          style={{
+            background: "radial-gradient(circle, hsl(320 50% 50% / 0.4), transparent 70%)",
+            bottom: "-15%",
+            right: "-15%",
+            animation: "orbFloat 10s ease-in-out infinite reverse",
+          }}
+        />
       </div>
 
-      {/* Ambient orbs */}
-      <div className="orb w-56 h-56 bg-primary -top-10 -left-10" />
-      <div className="orb w-40 h-40 bg-accent bottom-10 right-0" style={{ animationDelay: "3s" }} />
-
-      {/* Countdown numbers */}
-      {(stage === "countdown3" || stage === "countdown2" || stage === "countdown1") && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span
-            key={stage}
-            className="text-[10rem] md:text-[14rem] font-black number-gradient font-display animate-countdown select-none"
-          >
-            {stage === "countdown3" ? "3" : stage === "countdown2" ? "2" : "1"}
-          </span>
-        </div>
-      )}
-
-      {/* Burst flash */}
-      {stage === "burst" && (
-        <div className="absolute inset-0 bg-secondary/20 animate-flash" />
-      )}
-
-      {/* Gift box */}
-      {(stage === "gift" || stage === "opening") && (
+      {/* Envelope */}
+      <div className="relative z-10">
+        {/* Envelope body */}
         <div
-          className={`flex flex-col items-center transition-all duration-700 ${
-            stage === "opening" ? "scale-[3] opacity-0" : "scale-100 opacity-100 animate-gift-arrive"
+          className={`relative transition-all duration-1000 ease-out ${
+            phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning"
+              ? "scale-110"
+              : "scale-100"
           }`}
         >
-          <button
-            onClick={handleGiftClick}
-            className="relative group cursor-pointer focus:outline-none"
-            aria-label="Open gift"
+          {/* Envelope back */}
+          <div
+            className={`relative w-72 h-48 md:w-96 md:h-60 rounded-2xl transition-all duration-700 ${
+              phase === "transitioning" ? "opacity-0 scale-75" : ""
+            }`}
+            style={{
+              background: "linear-gradient(145deg, hsl(260 25% 12%), hsl(260 25% 8%))",
+              border: "1px solid hsl(260 25% 20%)",
+              boxShadow: phase === "envelope-opening" || phase === "letter-rising"
+                ? "0 0 80px hsl(45 90% 58% / 0.3), 0 20px 60px rgba(0,0,0,0.5)"
+                : "0 20px 60px rgba(0,0,0,0.5)",
+            }}
           >
-            {/* Pulse rings */}
-            <div className="absolute inset-[-20px] flex items-center justify-center">
-              <div className="absolute w-36 h-36 rounded-full border border-primary/30 photo-ring" />
-              <div className="absolute w-36 h-36 rounded-full border border-secondary/20 photo-ring" style={{ animationDelay: "0.7s" }} />
-              <div className="absolute w-36 h-36 rounded-full border border-accent/20 photo-ring" style={{ animationDelay: "1.4s" }} />
+            {/* Envelope flap (triangle) */}
+            <div
+              className="absolute top-0 left-0 right-0 h-24 md:h-32 origin-top transition-all duration-1000"
+              style={{
+                clipPath: "polygon(0 0, 100% 0, 50% 100%)",
+                background: "linear-gradient(180deg, hsl(260 25% 15%), hsl(260 25% 10%))",
+                borderBottom: "1px solid hsl(260 25% 20%)",
+                transform: phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning"
+                  ? "rotateX(-180deg)" : "rotateX(0deg)",
+                transformStyle: "preserve-3d",
+                perspective: "800px",
+              }}
+            />
+
+            {/* Letter peeking out */}
+            <div
+              className="absolute left-4 right-4 bg-gradient-to-b from-[hsl(45,30%,90%)] to-[hsl(45,25%,85%)] rounded-t-lg transition-all duration-1000 ease-out"
+              style={{
+                bottom: phase === "letter-rising" || phase === "transitioning" ? "60%" : "30%",
+                height: "70%",
+                opacity: phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning" ? 1 : 0,
+                boxShadow: "0 -4px 20px rgba(0,0,0,0.2)",
+              }}
+            >
+              {/* Letter content preview */}
+              <div className="p-4 pt-6 text-center">
+                <p className="font-arabic text-[hsl(260,30%,20%)] text-lg font-bold opacity-80">
+                  عيد ميلاد سعيد
+                </p>
+                <p className="font-arabic text-[hsl(260,30%,30%)] text-sm mt-1 opacity-60">
+                  يا شروق ✨
+                </p>
+              </div>
             </div>
 
-            <div className="relative text-8xl md:text-9xl animate-heartbeat group-active:scale-125 transition-transform select-none drop-shadow-2xl">
-              🎁
-            </div>
-          </button>
+            {/* Wax seal */}
+            <button
+              onClick={handleSealTap}
+              className={`absolute left-1/2 -translate-x-1/2 -bottom-8 z-20 focus:outline-none transition-all duration-300
+                ${phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning" ? "opacity-0 scale-0" : ""}
+                ${sealCracks >= 2 ? "animate-[shake_0.3s_ease-in-out]" : ""}
+              `}
+              disabled={phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning"}
+            >
+              <div className="relative">
+                {/* Seal glow */}
+                <div className="absolute -inset-4 rounded-full bg-[hsl(45,90%,58%)] opacity-20 blur-xl animate-pulse" />
 
-          <p className="mt-8 text-lg text-muted-foreground tracking-wide animate-fade-in font-arabic font-medium">
-            إضغط على الهدية 🎁
-          </p>
-          <div className="mt-2 flex gap-1">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="w-1.5 h-1.5 rounded-full bg-secondary/50 animate-bounce"
-                style={{ animationDelay: `${i * 0.2}s` }}
-              />
-            ))}
+                {/* Seal body */}
+                <div
+                  className="relative w-16 h-16 rounded-full flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
+                  style={{
+                    background: `radial-gradient(circle at 35% 35%, hsl(0 60% 45%), hsl(0 50% 30%))`,
+                    boxShadow: "0 4px 20px rgba(139, 0, 0, 0.5), inset 0 1px 3px rgba(255,255,255,0.2)",
+                  }}
+                >
+                  {/* Cracks overlay */}
+                  {sealCracks >= 1 && (
+                    <div className="absolute inset-0 rounded-full overflow-hidden">
+                      <div className="absolute top-1/2 left-1/4 w-[2px] h-6 bg-[hsl(0,40%,20%)] rotate-[30deg]" />
+                    </div>
+                  )}
+                  {sealCracks >= 2 && (
+                    <div className="absolute inset-0 rounded-full overflow-hidden">
+                      <div className="absolute top-1/3 right-1/4 w-[2px] h-5 bg-[hsl(0,40%,20%)] rotate-[-45deg]" />
+                      <div className="absolute bottom-1/3 left-1/3 w-[2px] h-4 bg-[hsl(0,40%,20%)] rotate-[60deg]" />
+                    </div>
+                  )}
+
+                  {/* Seal emblem */}
+                  <span className="text-2xl select-none drop-shadow-lg">
+                    {sealCracks >= 2 ? "💔" : "💌"}
+                  </span>
+                </div>
+
+                {/* Pulse rings */}
+                {phase === "idle" && (
+                  <>
+                    <div className="absolute inset-[-8px] rounded-full border border-[hsl(0,50%,40%)] photo-ring" />
+                    <div className="absolute inset-[-8px] rounded-full border border-[hsl(45,90%,58%)] photo-ring" style={{ animationDelay: "1s" }} />
+                  </>
+                )}
+              </div>
+            </button>
           </div>
         </div>
-      )}
 
-      {/* Tap to start hint */}
-      {stage === "waiting" && (
-        <div className="text-center animate-pulse">
-          <p className="text-muted-foreground/50 text-sm tracking-widest">TAP ANYWHERE</p>
+        {/* Instructions */}
+        <div className={`text-center mt-14 transition-all duration-500 ${
+          phase !== "idle" && phase !== "seal-cracking" ? "opacity-0" : "opacity-100"
+        }`}>
+          {tapHint ? (
+            <p className="font-arabic text-muted-foreground/60 text-base animate-pulse">
+              إكسر الختم لفتح الرسالة 🔓
+            </p>
+          ) : (
+            <div className="flex items-center justify-center gap-2">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    i < sealCracks
+                      ? "bg-secondary scale-110 shadow-[0_0_10px_hsl(45,90%,58%)]"
+                      : "bg-muted-foreground/20"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
+      </div>
+
+      {/* Transitioning overlay */}
+      {phase === "transitioning" && (
+        <div className="absolute inset-0 bg-background animate-fade-in z-30" />
       )}
     </div>
   );
