@@ -64,6 +64,7 @@ export default {
         },
       fontFamily: {
         arabic: ["Tajawal", "sans-serif"],
+        panorama: ["NT Panorama Naskh", "Tajawal", "sans-serif"],
       },
       },
       borderRadius: {

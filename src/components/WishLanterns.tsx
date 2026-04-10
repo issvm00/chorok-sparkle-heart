@@ -37,13 +37,11 @@ const WishLanterns = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
       const updated = prev.map((l) => (l.id === id ? { ...l, released: true } : l));
       if (updated.every((l) => l.released)) {
         setTimeout(() => setAllReleased(true), 500);
-        // Celebration
         confetti({ particleCount: 60, spread: 80, origin: { x: 0.5, y: 0.5 }, colors: ["#a78bfa", "#fbbf24", "#f472b6"] });
       }
       return updated;
     });
 
-    // Small burst at lantern position
     confetti({
       particleCount: 12,
       spread: 30,
@@ -64,8 +62,8 @@ const WishLanterns = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
       <div className={`w-full max-w-sm mx-auto transition-all duration-1000 ${revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}>
         {/* Header */}
         <div className="text-center mb-10">
-          <h3 className="font-arabic text-3xl gradient-text font-bold mb-2">أمنيات لك</h3>
-          <p className="font-arabic text-sm text-muted-foreground/50">إضغط على كل فانوس باش يطير 🏮</p>
+          <h3 className="font-panorama text-4xl gradient-text mb-3">أمنيات لك</h3>
+          <p className="font-panorama text-base text-muted-foreground/50">إضغط على كل فانوس باش يطير 🏮</p>
         </div>
 
         {/* Lanterns grid */}
@@ -89,13 +87,10 @@ const WishLanterns = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
               }}
             >
               <div className="relative flex flex-col items-center">
-                {/* Lantern glow */}
                 <div
                   className="absolute -inset-4 rounded-full blur-xl animate-pulse"
                   style={{ background: `${lantern.color.replace(")", " / 0.25)")}` }}
                 />
-
-                {/* Lantern body */}
                 <div
                   className="relative w-20 h-24 rounded-2xl flex flex-col items-center justify-center glass-card"
                   style={{
@@ -104,14 +99,12 @@ const WishLanterns = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
                   }}
                 >
                   <span className="text-3xl mb-1">{lantern.emoji}</span>
-                  <span className="font-arabic text-[10px] text-foreground/80 font-medium leading-tight text-center px-1" dir="rtl">
+                  <span className="font-panorama text-[11px] text-foreground/80 leading-tight text-center px-1" dir="rtl">
                     {lantern.wish}
                   </span>
                 </div>
-
-                {/* Flame */}
                 <div className="relative mt-[-2px]">
-                  <div className="w-2 h-3 rounded-full bg-secondary animate-pulse" style={{ filter: `drop-shadow(0 0 6px ${lantern.color})` }} />
+                  <div className="w-2 h-3 rounded-full animate-pulse" style={{ background: "hsl(var(--secondary))", filter: `drop-shadow(0 0 6px ${lantern.color})` }} />
                 </div>
               </div>
             </button>
@@ -121,10 +114,10 @@ const WishLanterns = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
         {/* All released message */}
         {allReleased && (
           <div className="text-center animate-fade-in-up mt-4">
-            <p className="font-arabic text-xl text-secondary/80 font-bold">
+            <p className="font-panorama text-2xl font-bold" style={{ color: "hsl(var(--secondary) / 0.8)" }}>
               كل الأمنيات طارت ليك 🌟
             </p>
-            <p className="font-arabic text-sm text-muted-foreground/50 mt-2">
+            <p className="font-panorama text-base text-muted-foreground/50 mt-2">
               إن شاء الله تتحقق كاملة ✨
             </p>
           </div>
