@@ -133,7 +133,7 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
                       className="transition-all duration-700 ease-out"
                       style={{
                         gridRow: patch.row + 1,
-                        gridCol: patch.col + 1,
+                        gridColumn: patch.col + 1,
                         background: isRevealed
                           ? "transparent"
                           : "hsl(var(--card) / 0.95)",
