@@ -72,7 +72,7 @@ const PhotoReveal = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
             >
               <img
                 src={chorokImg}
-                alt="Chorok - شروق"
+                alt="Chorouk - شروق"
                 className={`w-full h-full object-cover transition-all duration-[3000ms] ${
                   revealed && photoLoaded ? "opacity-100 saturate-100 blur-0" : "opacity-0 saturate-0 blur-md"
                 }`}
