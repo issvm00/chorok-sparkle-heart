@@ -137,7 +137,7 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
                 {MESSAGE_LINES.map((line, i) => (
                   <p
                     key={i}
-                    className="font-panorama text-xl leading-loose"
+                    className="font-panorama text-xl text-center leading-loose"
                     style={{
                       minHeight: line ? undefined : "0.75rem",
                       color: "hsl(45 40% 88%)",
