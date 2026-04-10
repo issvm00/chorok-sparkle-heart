@@ -10,8 +10,13 @@ const FinaleSection = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
   const fireworksRef = useRef<Firework[]>([]);
 
   interface Spark {
-    x: number; y: number; vx: number; vy: number;
-    life: number; color: string; size: number;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    life: number;
+    color: string;
+    size: number;
     trail: { x: number; y: number }[];
   }
 
@@ -38,8 +43,11 @@ const FinaleSection = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
     const h = () => canvas.offsetHeight;
 
     const colors = [
-      "rgba(167, 139, 250,", "rgba(251, 191, 36,",
-      "rgba(244, 114, 182,", "rgba(96, 165, 250,", "rgba(52, 211, 153,",
+      "rgba(167, 139, 250,",
+      "rgba(251, 191, 36,",
+      "rgba(244, 114, 182,",
+      "rgba(96, 165, 250,",
+      "rgba(52, 211, 153,",
     ];
 
     const createFirework = () => {
@@ -53,7 +61,8 @@ const FinaleSection = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
         const angle = (Math.PI * 2 * i) / count + Math.random() * 0.2;
         const speed = 1 + Math.random() * 3;
         sparks.push({
-          x: cx, y: cy,
+          x: cx,
+          y: cy,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
           life: 1,
@@ -127,26 +136,24 @@ const FinaleSection = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
       ref={ref}
       className="relative z-20 flex flex-col items-center justify-center min-h-[60vh] py-24 px-4 snap-start"
     >
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none rounded-3xl"
-      />
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none rounded-3xl" />
 
-      <div className={`relative text-center transition-all duration-[2000ms] ${revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+      <div
+        className={`relative text-center transition-all duration-[2000ms] ${revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      >
         <div className="w-16 h-[1px] mx-auto mb-8 animate-shimmer rounded-full" />
 
-        <p className="font-script text-4xl md:text-5xl gradient-text mb-4">
-          Best Friends
-        </p>
-        <p className="font-script text-3xl md:text-4xl gradient-text-warm">
-          Forever
-        </p>
+        <p className="font-script text-4xl md:text-5xl gradient-text mb-4">Happy life</p>
+        <p className="font-script text-3xl md:text-4xl gradient-text-warm">Forever</p>
 
         <div className="mt-6 text-lg" style={{ color: "hsl(var(--secondary) / 0.5)" }}>
           🤝
         </div>
 
-        <p className="mt-8 text-[10px] tracking-[0.5em] uppercase" style={{ color: "hsl(var(--muted-foreground) / 0.2)" }}>
+        <p
+          className="mt-8 text-[10px] tracking-[0.5em] uppercase"
+          style={{ color: "hsl(var(--muted-foreground) / 0.2)" }}
+        >
           2026 · صنع بكل حب 💛
         </p>
       </div>
