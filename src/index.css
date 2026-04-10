@@ -195,6 +195,13 @@
   animation: pulseRing 2s ease-out infinite;
 }
 
+/* Glass card */
+.glass-card {
+  background: hsl(var(--card) / 0.4);
+  backdrop-filter: blur(20px);
+  border: 1px solid hsl(var(--border) / 0.3);
+}
+
 /* Chrome/metallic text */
 .chrome-text {
   background: linear-gradient(
