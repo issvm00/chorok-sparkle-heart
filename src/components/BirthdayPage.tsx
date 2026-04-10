@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import confetti from "canvas-confetti";
 import ParticleCanvas from "./ParticleCanvas";
 import OpeningScreen from "./OpeningScreen";
+import MusicPlayer from "./MusicPlayer";
 import chorokImg from "@/assets/chorok.jpg";
 
 const BirthdayPage = () => {
@@ -76,6 +77,7 @@ const BirthdayPage = () => {
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden snap-y snap-mandatory">
       <ParticleCanvas />
+      <MusicPlayer autoPlay />
 
       {/* Ambient orbs */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
