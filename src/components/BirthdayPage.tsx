@@ -113,7 +113,7 @@ const BirthdayPage = () => {
 
           {/* Arabic name */}
           <div className={`transition-all duration-1000 ${heroStage >= 4 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-            <p className="font-script text-3xl md:text-4xl text-secondary/70 mt-2">شروق</p>
+            <p className="font-arabic text-3xl md:text-4xl text-secondary/70 mt-2 font-bold">شروق</p>
           </div>
 
           {/* Shimmer line + subtitle */}
@@ -192,14 +192,14 @@ const BirthdayPage = () => {
             <div className="relative">
               <div className="text-center mb-5">
                 <span className="text-5xl block mb-3">🎂</span>
-                <h3 className="font-script text-3xl gradient-text">عيد ميلاد سعيد</h3>
+                <h3 className="font-arabic text-3xl gradient-text font-bold">عيد ميلاد سعيد</h3>
               </div>
 
-              <div className="space-y-3 text-center" dir="rtl">
-                <p className="text-foreground/90 leading-relaxed">
+              <div className="space-y-3 text-center font-arabic" dir="rtl">
+                <p className="text-foreground/90 leading-relaxed text-lg">
                   كل عام و أنتِ بألف خير يا شروق ✨
                 </p>
-                <p className="text-muted-foreground leading-relaxed text-sm">
+                <p className="text-muted-foreground leading-relaxed">
                   عقبال 💯 سنة مليانة بالنجاح و الفرح 🎉
                 </p>
               </div>
@@ -220,14 +220,14 @@ const BirthdayPage = () => {
                     }}
                   >
                     <span className="text-2xl block mb-1">{wish.emoji}</span>
-                    <span className="text-xs text-muted-foreground" dir="rtl">{wish.text}</span>
+                    <span className="text-xs text-muted-foreground font-arabic font-medium" dir="rtl">{wish.text}</span>
                   </div>
                 ))}
               </div>
 
               <div className="w-16 h-[1px] mx-auto my-5 animate-shimmer rounded-full" />
 
-              <p className="text-center font-script text-lg text-secondary/60">
+              <p className="text-center font-arabic text-lg text-secondary/60 font-medium">
                 من صديقك 🤝
               </p>
             </div>
@@ -250,7 +250,7 @@ const BirthdayPage = () => {
                 </div>
               )}
             </button>
-            <p className="mt-3 text-[11px] text-muted-foreground/40 animate-pulse tracking-wide">
+            <p className="mt-3 text-[11px] text-muted-foreground/40 animate-pulse tracking-wide font-arabic">
               إضغط على الكيكة 🎉
             </p>
           </div>
