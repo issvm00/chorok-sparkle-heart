@@ -6,7 +6,9 @@ interface Props {
 }
 
 const OpeningScreen = ({ onOpen }: Props) => {
-  const [phase, setPhase] = useState<"idle" | "seal-cracking" | "envelope-opening" | "letter-rising" | "transitioning">("idle");
+  const [phase, setPhase] = useState<"idle" | "seal-cracking" | "envelope-opening" | "letter-rising" | "transitioning">(
+    "idle",
+  );
   const [sealCracks, setSealCracks] = useState(0);
   const [tapHint, setTapHint] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -100,7 +102,8 @@ const OpeningScreen = ({ onOpen }: Props) => {
   }, [phase, sealCracks, onOpen]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
       style={{ background: "hsl(var(--background))" }}
     >
       <canvas ref={canvasRef} className="absolute inset-0" />
@@ -143,9 +146,10 @@ const OpeningScreen = ({ onOpen }: Props) => {
             style={{
               background: "linear-gradient(145deg, hsl(var(--card)), hsl(260 25% 6%))",
               border: "1px solid hsl(var(--border))",
-              boxShadow: phase === "envelope-opening" || phase === "letter-rising"
-                ? "0 0 80px hsl(var(--gold) / 0.3), 0 20px 60px rgba(0,0,0,0.5)"
-                : "0 20px 60px rgba(0,0,0,0.5)",
+              boxShadow:
+                phase === "envelope-opening" || phase === "letter-rising"
+                  ? "0 0 80px hsl(var(--gold) / 0.3), 0 20px 60px rgba(0,0,0,0.5)"
+                  : "0 20px 60px rgba(0,0,0,0.5)",
             }}
           >
             {/* Envelope flap */}
@@ -155,8 +159,10 @@ const OpeningScreen = ({ onOpen }: Props) => {
                 clipPath: "polygon(0 0, 100% 0, 50% 100%)",
                 background: "linear-gradient(180deg, hsl(260 25% 15%), hsl(var(--card)))",
                 borderBottom: "1px solid hsl(var(--border))",
-                transform: phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning"
-                  ? "rotateX(-180deg)" : "rotateX(0deg)",
+                transform:
+                  phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning"
+                    ? "rotateX(-180deg)"
+                    : "rotateX(0deg)",
                 transformStyle: "preserve-3d",
                 perspective: "800px",
               }}
@@ -174,12 +180,8 @@ const OpeningScreen = ({ onOpen }: Props) => {
               }}
             >
               <div className="p-4 pt-6 text-center">
-                <p className="font-panorama text-foreground/80 text-xl">
-                  عيد ميلاد سعيد
-                </p>
-                <p className="font-panorama text-secondary/60 text-base mt-1">
-                  يا شروق ✨
-                </p>
+                <p className="font-panorama text-foreground/80 text-xl">عيد ميلاد سعيد</p>
+                <p className="font-panorama text-secondary/60 text-base mt-1">يا شروق ✨</p>
               </div>
             </div>
 
@@ -193,7 +195,8 @@ const OpeningScreen = ({ onOpen }: Props) => {
               disabled={phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning"}
             >
               <div className="relative">
-                <div className="absolute -inset-4 rounded-full opacity-20 blur-xl animate-pulse"
+                <div
+                  className="absolute -inset-4 rounded-full opacity-20 blur-xl animate-pulse"
                   style={{ background: "hsl(var(--gold))" }}
                 />
                 <div
@@ -214,15 +217,16 @@ const OpeningScreen = ({ onOpen }: Props) => {
                       <div className="absolute bottom-1/3 left-1/3 w-[2px] h-4 bg-[hsl(0,40%,20%)] rotate-[60deg]" />
                     </div>
                   )}
-                  <span className="text-2xl select-none drop-shadow-lg">
-                    {sealCracks >= 2 ? "💔" : "💌"}
-                  </span>
+                  <span className="text-2xl select-none drop-shadow-lg">{sealCracks >= 2 ? "🎉" : "💌"}</span>
                 </div>
 
                 {phase === "idle" && (
                   <>
                     <div className="absolute inset-[-8px] rounded-full border border-[hsl(0,50%,40%)] photo-ring" />
-                    <div className="absolute inset-[-8px] rounded-full border photo-ring" style={{ borderColor: "hsl(var(--gold))", animationDelay: "1s" }} />
+                    <div
+                      className="absolute inset-[-8px] rounded-full border photo-ring"
+                      style={{ borderColor: "hsl(var(--gold))", animationDelay: "1s" }}
+                    />
                   </>
                 )}
               </div>
@@ -231,23 +235,19 @@ const OpeningScreen = ({ onOpen }: Props) => {
         </div>
 
         {/* Instructions */}
-        <div className={`text-center mt-14 transition-all duration-500 ${
-          phase !== "idle" && phase !== "seal-cracking" ? "opacity-0" : "opacity-100"
-        }`}>
+        <div
+          className={`text-center mt-14 transition-all duration-500 ${
+            phase !== "idle" && phase !== "seal-cracking" ? "opacity-0" : "opacity-100"
+          }`}
+        >
           {tapHint ? (
-            <p className="font-panorama text-muted-foreground/60 text-lg animate-pulse">
-              إكسر الختم لفتح الرسالة 🔓
-            </p>
+            <p className="font-panorama text-muted-foreground/60 text-lg animate-pulse">إكسر الختم لفتح الرسالة 🔓</p>
           ) : (
             <div className="flex items-center justify-center gap-2">
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    i < sealCracks
-                      ? "scale-110"
-                      : ""
-                  }`}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${i < sealCracks ? "scale-110" : ""}`}
                   style={{
                     background: i < sealCracks ? "hsl(var(--secondary))" : "hsl(var(--muted-foreground) / 0.2)",
                     boxShadow: i < sealCracks ? "0 0 10px hsl(var(--gold))" : "none",
