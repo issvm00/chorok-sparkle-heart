@@ -8,17 +8,20 @@ import PhotoReveal from "./PhotoReveal";
 import WishLanterns from "./WishLanterns";
 import HandwrittenMessage from "./HandwrittenMessage";
 import FinaleSection from "./FinaleSection";
+import DedicatedSongs from "./DedicatedSongs";
 
 const BirthdayPage = () => {
   const [opened, setOpened] = useState(false);
   const [photoRevealed, setPhotoRevealed] = useState(false);
   const [wishRevealed, setWishRevealed] = useState(false);
   const [messageRevealed, setMessageRevealed] = useState(false);
+  const [songsRevealed, setSongsRevealed] = useState(false);
   const [finaleRevealed, setFinaleRevealed] = useState(false);
 
   const photoRef = useRef<HTMLDivElement>(null);
   const wishRef = useRef<HTMLDivElement>(null);
   const messageRef = useRef<HTMLDivElement>(null);
+  const songsRef = useRef<HTMLDivElement>(null);
   const finaleRef = useRef<HTMLDivElement>(null);
 
   const handleOpen = useCallback(() => {
@@ -35,13 +38,14 @@ const BirthdayPage = () => {
           if (entry.target === photoRef.current) setPhotoRevealed(true);
           if (entry.target === wishRef.current) setWishRevealed(true);
           if (entry.target === messageRef.current) setMessageRevealed(true);
+          if (entry.target === songsRef.current) setSongsRevealed(true);
           if (entry.target === finaleRef.current) setFinaleRevealed(true);
         });
       },
       { threshold: 0.15 }
     );
 
-    [photoRef, wishRef, messageRef, finaleRef].forEach((ref) => {
+    [photoRef, wishRef, messageRef, songsRef, finaleRef].forEach((ref) => {
       if (ref.current) observer.observe(ref.current);
     });
 
@@ -60,6 +64,7 @@ const BirthdayPage = () => {
       <PhotoReveal ref={photoRef} revealed={photoRevealed} />
       <WishLanterns ref={wishRef} revealed={wishRevealed} />
       <HandwrittenMessage ref={messageRef} revealed={messageRevealed} />
+      <DedicatedSongs ref={songsRef} revealed={songsRevealed} />
       <FinaleSection ref={finaleRef} revealed={finaleRevealed} />
     </div>
   );
