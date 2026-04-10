@@ -227,7 +227,7 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
                 />
               </div>
               <p className="font-panorama text-base" style={{ color: "hsl(45 70% 65% / 0.7)" }}>
-                "عامٌ يقربنا للنهاية 🦋""
+                "عامٌ يقربنا للنهاية 🦋"
               </p>
             </div>
           </div>
