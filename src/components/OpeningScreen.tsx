@@ -13,7 +13,6 @@ const OpeningScreen = ({ onOpen }: Props) => {
   const starsRef = useRef<{ x: number; y: number; size: number; speed: number; opacity: number }[]>([]);
   const animRef = useRef<number>(0);
 
-  // Star field
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -29,7 +28,6 @@ const OpeningScreen = ({ onOpen }: Props) => {
     };
     resize();
 
-    // Create stars
     starsRef.current = Array.from({ length: 80 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
@@ -67,7 +65,6 @@ const OpeningScreen = ({ onOpen }: Props) => {
     setTapHint(false);
     setPhase("seal-cracking");
 
-    // Small burst each tap
     confetti({
       particleCount: 8,
       spread: 40,
@@ -80,10 +77,8 @@ const OpeningScreen = ({ onOpen }: Props) => {
     });
 
     if (newCracks >= 3) {
-      // Seal breaks!
       setTimeout(() => {
         setPhase("envelope-opening");
-        // Gold confetti explosion
         const colors = ["#c9a44a", "#fbbf24", "#f59e0b", "#d97706", "#a78bfa"];
         confetti({ particleCount: 100, spread: 100, origin: { x: 0.5, y: 0.5 }, colors, startVelocity: 35 });
       }, 300);
@@ -91,7 +86,6 @@ const OpeningScreen = ({ onOpen }: Props) => {
       setTimeout(() => setPhase("letter-rising"), 1400);
       setTimeout(() => {
         setPhase("transitioning");
-        // Epic side confetti
         const colors = ["#a78bfa", "#fbbf24", "#f472b6", "#60a5fa", "#34d399"];
         const end = Date.now() + 1200;
         const frame = () => {
@@ -106,7 +100,9 @@ const OpeningScreen = ({ onOpen }: Props) => {
   }, [phase, sealCracks, onOpen]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[hsl(260,30%,3%)] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
+      style={{ background: "hsl(var(--background))" }}
+    >
       <canvas ref={canvasRef} className="absolute inset-0" />
 
       {/* Ambient aurora */}
@@ -133,7 +129,6 @@ const OpeningScreen = ({ onOpen }: Props) => {
 
       {/* Envelope */}
       <div className="relative z-10">
-        {/* Envelope body */}
         <div
           className={`relative transition-all duration-1000 ease-out ${
             phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning"
@@ -141,26 +136,25 @@ const OpeningScreen = ({ onOpen }: Props) => {
               : "scale-100"
           }`}
         >
-          {/* Envelope back */}
           <div
             className={`relative w-72 h-48 md:w-96 md:h-60 rounded-2xl transition-all duration-700 ${
               phase === "transitioning" ? "opacity-0 scale-75" : ""
             }`}
             style={{
-              background: "linear-gradient(145deg, hsl(260 25% 12%), hsl(260 25% 8%))",
-              border: "1px solid hsl(260 25% 20%)",
+              background: "linear-gradient(145deg, hsl(var(--card)), hsl(260 25% 6%))",
+              border: "1px solid hsl(var(--border))",
               boxShadow: phase === "envelope-opening" || phase === "letter-rising"
-                ? "0 0 80px hsl(45 90% 58% / 0.3), 0 20px 60px rgba(0,0,0,0.5)"
+                ? "0 0 80px hsl(var(--gold) / 0.3), 0 20px 60px rgba(0,0,0,0.5)"
                 : "0 20px 60px rgba(0,0,0,0.5)",
             }}
           >
-            {/* Envelope flap (triangle) */}
+            {/* Envelope flap */}
             <div
               className="absolute top-0 left-0 right-0 h-24 md:h-32 origin-top transition-all duration-1000"
               style={{
                 clipPath: "polygon(0 0, 100% 0, 50% 100%)",
-                background: "linear-gradient(180deg, hsl(260 25% 15%), hsl(260 25% 10%))",
-                borderBottom: "1px solid hsl(260 25% 20%)",
+                background: "linear-gradient(180deg, hsl(260 25% 15%), hsl(var(--card)))",
+                borderBottom: "1px solid hsl(var(--border))",
                 transform: phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning"
                   ? "rotateX(-180deg)" : "rotateX(0deg)",
                 transformStyle: "preserve-3d",
@@ -170,20 +164,20 @@ const OpeningScreen = ({ onOpen }: Props) => {
 
             {/* Letter peeking out */}
             <div
-              className="absolute left-4 right-4 bg-gradient-to-b from-[hsl(45,30%,90%)] to-[hsl(45,25%,85%)] rounded-t-lg transition-all duration-1000 ease-out"
+              className="absolute left-4 right-4 rounded-t-lg transition-all duration-1000 ease-out"
               style={{
+                background: "linear-gradient(to bottom, hsl(260 20% 14%), hsl(260 20% 10%))",
                 bottom: phase === "letter-rising" || phase === "transitioning" ? "60%" : "30%",
                 height: "70%",
                 opacity: phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning" ? 1 : 0,
                 boxShadow: "0 -4px 20px rgba(0,0,0,0.2)",
               }}
             >
-              {/* Letter content preview */}
               <div className="p-4 pt-6 text-center">
-                <p className="font-arabic text-[hsl(260,30%,20%)] text-lg font-bold opacity-80">
+                <p className="font-panorama text-foreground/80 text-xl">
                   عيد ميلاد سعيد
                 </p>
-                <p className="font-arabic text-[hsl(260,30%,30%)] text-sm mt-1 opacity-60">
+                <p className="font-panorama text-secondary/60 text-base mt-1">
                   يا شروق ✨
                 </p>
               </div>
@@ -199,18 +193,16 @@ const OpeningScreen = ({ onOpen }: Props) => {
               disabled={phase === "envelope-opening" || phase === "letter-rising" || phase === "transitioning"}
             >
               <div className="relative">
-                {/* Seal glow */}
-                <div className="absolute -inset-4 rounded-full bg-[hsl(45,90%,58%)] opacity-20 blur-xl animate-pulse" />
-
-                {/* Seal body */}
+                <div className="absolute -inset-4 rounded-full opacity-20 blur-xl animate-pulse"
+                  style={{ background: "hsl(var(--gold))" }}
+                />
                 <div
                   className="relative w-16 h-16 rounded-full flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
                   style={{
-                    background: `radial-gradient(circle at 35% 35%, hsl(0 60% 45%), hsl(0 50% 30%))`,
+                    background: "radial-gradient(circle at 35% 35%, hsl(0 60% 45%), hsl(0 50% 30%))",
                     boxShadow: "0 4px 20px rgba(139, 0, 0, 0.5), inset 0 1px 3px rgba(255,255,255,0.2)",
                   }}
                 >
-                  {/* Cracks overlay */}
                   {sealCracks >= 1 && (
                     <div className="absolute inset-0 rounded-full overflow-hidden">
                       <div className="absolute top-1/2 left-1/4 w-[2px] h-6 bg-[hsl(0,40%,20%)] rotate-[30deg]" />
@@ -222,18 +214,15 @@ const OpeningScreen = ({ onOpen }: Props) => {
                       <div className="absolute bottom-1/3 left-1/3 w-[2px] h-4 bg-[hsl(0,40%,20%)] rotate-[60deg]" />
                     </div>
                   )}
-
-                  {/* Seal emblem */}
                   <span className="text-2xl select-none drop-shadow-lg">
                     {sealCracks >= 2 ? "💔" : "💌"}
                   </span>
                 </div>
 
-                {/* Pulse rings */}
                 {phase === "idle" && (
                   <>
                     <div className="absolute inset-[-8px] rounded-full border border-[hsl(0,50%,40%)] photo-ring" />
-                    <div className="absolute inset-[-8px] rounded-full border border-[hsl(45,90%,58%)] photo-ring" style={{ animationDelay: "1s" }} />
+                    <div className="absolute inset-[-8px] rounded-full border photo-ring" style={{ borderColor: "hsl(var(--gold))", animationDelay: "1s" }} />
                   </>
                 )}
               </div>
@@ -246,7 +235,7 @@ const OpeningScreen = ({ onOpen }: Props) => {
           phase !== "idle" && phase !== "seal-cracking" ? "opacity-0" : "opacity-100"
         }`}>
           {tapHint ? (
-            <p className="font-arabic text-muted-foreground/60 text-base animate-pulse">
+            <p className="font-panorama text-muted-foreground/60 text-lg animate-pulse">
               إكسر الختم لفتح الرسالة 🔓
             </p>
           ) : (
@@ -256,9 +245,13 @@ const OpeningScreen = ({ onOpen }: Props) => {
                   key={i}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     i < sealCracks
-                      ? "bg-secondary scale-110 shadow-[0_0_10px_hsl(45,90%,58%)]"
-                      : "bg-muted-foreground/20"
+                      ? "scale-110"
+                      : ""
                   }`}
+                  style={{
+                    background: i < sealCracks ? "hsl(var(--secondary))" : "hsl(var(--muted-foreground) / 0.2)",
+                    boxShadow: i < sealCracks ? "0 0 10px hsl(var(--gold))" : "none",
+                  }}
                 />
               ))}
             </div>
@@ -268,7 +261,7 @@ const OpeningScreen = ({ onOpen }: Props) => {
 
       {/* Transitioning overlay */}
       {phase === "transitioning" && (
-        <div className="absolute inset-0 bg-background animate-fade-in z-30" />
+        <div className="absolute inset-0 animate-fade-in z-30" style={{ background: "hsl(var(--background))" }} />
       )}
     </div>
   );

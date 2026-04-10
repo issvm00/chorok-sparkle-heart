@@ -65,7 +65,6 @@ const FinaleSection = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
       fireworksRef.current.push({ sparks, born: Date.now() });
     };
 
-    // Launch fireworks periodically
     let launchCount = 0;
     const launchInterval = setInterval(() => {
       createFirework();
@@ -73,7 +72,6 @@ const FinaleSection = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
       if (launchCount > 20) clearInterval(launchInterval);
     }, 800);
 
-    // Initial burst
     setTimeout(createFirework, 100);
     setTimeout(createFirework, 300);
 
@@ -94,7 +92,6 @@ const FinaleSection = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
           s.vy += 0.03;
           s.vx *= 0.99;
 
-          // Draw trail
           for (let t = 0; t < s.trail.length; t++) {
             const alpha = (t / s.trail.length) * s.life * 0.3;
             ctx.beginPath();
@@ -103,7 +100,6 @@ const FinaleSection = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
             ctx.fill();
           }
 
-          // Draw spark
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
           ctx.fillStyle = `${s.color}${s.life})`;
@@ -131,7 +127,6 @@ const FinaleSection = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
       ref={ref}
       className="relative z-20 flex flex-col items-center justify-center min-h-[60vh] py-24 px-4 snap-start"
     >
-      {/* Fireworks canvas */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none rounded-3xl"
@@ -147,11 +142,11 @@ const FinaleSection = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
           Forever
         </p>
 
-        <div className="mt-6 font-arabic text-secondary/50 text-lg font-medium">
+        <div className="mt-6 text-lg" style={{ color: "hsl(var(--secondary) / 0.5)" }}>
           🤝
         </div>
 
-        <p className="mt-8 text-[10px] text-muted-foreground/20 tracking-[0.5em] uppercase">
+        <p className="mt-8 text-[10px] tracking-[0.5em] uppercase" style={{ color: "hsl(var(--muted-foreground) / 0.2)" }}>
           2026 · صنع بكل حب 💛
         </p>
       </div>

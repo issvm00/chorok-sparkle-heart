@@ -1,4 +1,4 @@
-import { forwardRef, useState, useEffect, useMemo } from "react";
+import { forwardRef, useState, useMemo } from "react";
 
 interface Props {
   revealed: boolean;
@@ -11,11 +11,9 @@ const MESSAGE_LINES = [
   "ديما كون بخير يا صاحبي 🤝",
 ];
 
-// Generate random scratch patch positions for each line
 const generatePatches = () => {
   const patches: { lineIdx: number; startPct: number; widthPct: number; revealAt: number }[] = [];
   MESSAGE_LINES.forEach((_, lineIdx) => {
-    // 3-4 patches per line covering ~70% of the text
     const count = 3 + Math.floor(Math.random() * 2);
     const segWidth = 100 / count;
     for (let j = 0; j < count; j++) {
@@ -23,7 +21,7 @@ const generatePatches = () => {
         lineIdx,
         startPct: j * segWidth + Math.random() * 4,
         widthPct: segWidth - 2 + Math.random() * 4,
-        revealAt: Math.floor(Math.random() * 3) + 1, // reveal at click 1, 2, or 3
+        revealAt: Math.floor(Math.random() * 3) + 1,
       });
     }
   });
@@ -32,26 +30,30 @@ const generatePatches = () => {
 
 const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
   const [candlesBlown, setCandlesBlown] = useState(0);
-  const [confettiCount, setConfettiCount] = useState(0);
   const patches = useMemo(() => generatePatches(), []);
 
   const allBlown = candlesBlown >= 3;
 
   const handleCandleClick = (index: number) => {
-    if (index !== candlesBlown) return; // must blow in order
+    if (index !== candlesBlown) return;
     setCandlesBlown((p) => p + 1);
-    setConfettiCount((p) => p + 1);
 
     const colors = ["#a78bfa", "#fbbf24", "#f472b6", "#60a5fa"];
     import("canvas-confetti").then((mod) => {
       mod.default({
-        particleCount: 60 + candlesBlown * 20,
-        spread: 80,
-        origin: { x: 0.5, y: 0.65 },
+        particleCount: 60 + candlesBlown * 25,
+        spread: 90,
+        origin: { x: 0.5, y: 0.7 },
         colors,
       });
     });
   };
+
+  const candleColors = [
+    { body: "hsl(340 70% 60%)", tip: "hsl(340 60% 45%)" },
+    { body: "hsl(270 65% 60%)", tip: "hsl(270 55% 45%)" },
+    { body: "hsl(200 65% 55%)", tip: "hsl(200 55% 40%)" },
+  ];
 
   return (
     <section
@@ -64,53 +66,60 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
         }`}
       >
         {/* Card */}
-        <div
-          className="relative rounded-3xl overflow-hidden"
+        <div className="relative rounded-[2rem] overflow-hidden shadow-2xl"
           style={{
-            background: "linear-gradient(145deg, hsl(40 25% 94%), hsl(38 18% 89%))",
-            boxShadow:
-              "0 30px 80px rgba(0,0,0,0.45), inset 0 1px 3px rgba(255,255,255,0.6), inset 0 -1px 3px rgba(0,0,0,0.05)",
+            background: "linear-gradient(165deg, hsl(260 30% 8%), hsl(270 25% 12%), hsl(260 20% 6%))",
+            boxShadow: "0 40px 100px rgba(0,0,0,0.6), 0 0 60px hsl(270 60% 55% / 0.08), inset 0 1px 1px hsl(270 40% 30% / 0.3)",
           }}
         >
-          {/* Gold foil top strip */}
-          <div
-            className="h-1.5 w-full"
-            style={{
-              background: "linear-gradient(90deg, transparent, hsl(45 90% 58%), hsl(40 80% 50%), hsl(45 90% 58%), transparent)",
-            }}
-          />
+          {/* Top decorative border — gradient line */}
+          <div className="h-[2px] w-full" style={{
+            background: "linear-gradient(90deg, transparent 5%, hsl(270 60% 55% / 0.6) 30%, hsl(45 90% 58% / 0.7) 50%, hsl(320 60% 55% / 0.6) 70%, transparent 95%)",
+          }} />
 
-          <div className="p-8">
-            {/* Paper texture */}
-            <div
-              className="absolute inset-0 opacity-[0.025] pointer-events-none"
+          {/* Inner content */}
+          <div className="relative p-8 pt-7">
+            {/* Subtle mesh gradient background */}
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
               style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+                background: `radial-gradient(circle at 20% 20%, hsl(270 60% 55%), transparent 50%),
+                             radial-gradient(circle at 80% 80%, hsl(45 80% 55%), transparent 50%)`,
               }}
             />
 
-            {/* Corners */}
-            <div className="absolute top-5 right-5 w-6 h-6 border-t-[1.5px] border-r-[1.5px] border-[hsl(45,80%,45%)] opacity-25 rounded-tr-md" />
-            <div className="absolute bottom-5 left-5 w-6 h-6 border-b-[1.5px] border-l-[1.5px] border-[hsl(45,80%,45%)] opacity-25 rounded-bl-md" />
+            {/* Corner ornaments */}
+            <div className="absolute top-4 right-4 w-8 h-8 opacity-20">
+              <div className="absolute top-0 right-0 w-full h-[1px]" style={{ background: "linear-gradient(to left, hsl(45 80% 55%), transparent)" }} />
+              <div className="absolute top-0 right-0 h-full w-[1px]" style={{ background: "linear-gradient(to bottom, hsl(45 80% 55%), transparent)" }} />
+            </div>
+            <div className="absolute bottom-4 left-4 w-8 h-8 opacity-20">
+              <div className="absolute bottom-0 left-0 w-full h-[1px]" style={{ background: "linear-gradient(to right, hsl(45 80% 55%), transparent)" }} />
+              <div className="absolute bottom-0 left-0 h-full w-[1px]" style={{ background: "linear-gradient(to top, hsl(45 80% 55%), transparent)" }} />
+            </div>
 
             <div className="relative" dir="rtl">
               {/* Header */}
-              <div className="text-center mb-6">
-                <span className="text-3xl">💌</span>
-                <h3 className="font-arabic text-lg text-[hsl(260,30%,25%)] font-bold mt-2 tracking-wide">
+              <div className="text-center mb-7">
+                <div className="inline-flex items-center gap-3 mb-3">
+                  <div className="w-8 h-[1px]" style={{ background: "linear-gradient(to right, transparent, hsl(45 80% 55% / 0.5))" }} />
+                  <span className="text-2xl">✉️</span>
+                  <div className="w-8 h-[1px]" style={{ background: "linear-gradient(to left, transparent, hsl(45 80% 55% / 0.5))" }} />
+                </div>
+                <h3 className="font-panorama text-2xl text-foreground/90 tracking-wide">
                   رسالة من صاحبك
                 </h3>
-                <div className="w-10 h-px mx-auto mt-3 bg-gradient-to-r from-transparent via-[hsl(45,80%,50%)] to-transparent opacity-50" />
               </div>
+
+              {/* Divider */}
+              <div className="w-full h-[1px] mb-6 opacity-20" style={{
+                background: "linear-gradient(90deg, transparent, hsl(270 60% 55% / 0.6), hsl(45 80% 55% / 0.5), hsl(270 60% 55% / 0.6), transparent)"
+              }} />
 
               {/* Message with scratch overlay */}
               <div className="space-y-4 min-h-[160px]">
                 {MESSAGE_LINES.map((line, i) => (
                   <div key={i} className="relative">
-                    <p
-                      className="font-arabic text-base leading-relaxed"
-                      style={{ color: "hsl(260, 25%, 30%)" }}
-                    >
+                    <p className="font-panorama text-lg leading-relaxed text-foreground/85">
                       {line}
                     </p>
                     {/* Scratch patches */}
@@ -128,10 +137,10 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
                                 width: `${patch.widthPct}%`,
                                 background: isRevealed
                                   ? "transparent"
-                                  : "linear-gradient(135deg, hsl(260 20% 55% / 0.85), hsl(270 25% 45% / 0.9))",
-                                backdropFilter: isRevealed ? "none" : "blur(6px)",
+                                  : "linear-gradient(135deg, hsl(270 30% 15% / 0.92), hsl(260 25% 10% / 0.95))",
+                                backdropFilter: isRevealed ? "none" : "blur(8px)",
                                 opacity: isRevealed ? 0 : 1,
-                                transform: isRevealed ? "scale(0.8)" : "scale(1)",
+                                transform: isRevealed ? "scaleY(0.5)" : "scaleY(1)",
                               }}
                             />
                           );
@@ -143,125 +152,125 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
 
               {/* Signature */}
               <div
-                className={`mt-6 text-center transition-all duration-700 ${
+                className={`mt-8 text-center transition-all duration-700 ${
                   allBlown ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
                 }`}
               >
-                <div className="w-8 h-px mx-auto bg-gradient-to-r from-transparent via-[hsl(45,80%,50%)] to-transparent opacity-40 mb-3" />
-                <p className="font-arabic text-sm text-[hsl(260,25%,40%)] font-medium">
+                <div className="w-12 h-[1px] mx-auto mb-3 opacity-30" style={{
+                  background: "linear-gradient(90deg, transparent, hsl(45 80% 55%), transparent)"
+                }} />
+                <p className="font-panorama text-base text-secondary/70">
                   من صديقك الغالي 🤝
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Gold foil bottom strip */}
-          <div
-            className="h-1 w-full"
-            style={{
-              background: "linear-gradient(90deg, transparent, hsl(45 90% 58%), hsl(40 80% 50%), hsl(45 90% 58%), transparent)",
-            }}
-          />
+          {/* Bottom decorative border */}
+          <div className="h-[2px] w-full" style={{
+            background: "linear-gradient(90deg, transparent 5%, hsl(320 60% 55% / 0.5) 30%, hsl(45 90% 58% / 0.6) 50%, hsl(270 60% 55% / 0.5) 70%, transparent 95%)",
+          }} />
         </div>
 
         {/* Candles section */}
-        <div className="text-center mt-10">
+        <div className="text-center mt-12">
           {/* Hint */}
           {!allBlown && (
-            <p className="font-arabic text-xs text-secondary/50 mb-4 animate-pulse">
-              🕯️ نفخ الشمعات باش تكشف الرسالة
-            </p>
+            <div className="mb-5 animate-pulse">
+              <p className="font-panorama text-sm text-muted-foreground/50">
+                🕯️ نفخ الشمعات باش تكشف الرسالة
+              </p>
+            </div>
           )}
 
-          {/* Three candles */}
-          <div className="flex items-end justify-center gap-8 mb-6">
-            {[0, 1, 2].map((i) => {
-              const isLit = i >= candlesBlown;
-              const isNext = i === candlesBlown;
-              return (
-                <button
-                  key={i}
-                  onClick={() => handleCandleClick(i)}
-                  disabled={!isNext}
-                  className={`group relative flex flex-col items-center transition-all duration-300 focus:outline-none ${
-                    isNext ? "cursor-pointer scale-110" : isLit ? "cursor-default opacity-60" : "cursor-default"
-                  }`}
-                  aria-label={`Candle ${i + 1}`}
-                >
-                  {/* Flame */}
-                  {isLit && (
-                    <div className="relative mb-1">
-                      <div
-                        className="w-3 h-4 rounded-full animate-pulse"
-                        style={{
-                          background: "radial-gradient(circle at 50% 70%, hsl(45 100% 65%), hsl(30 100% 50%), transparent)",
-                          filter: "drop-shadow(0 0 8px hsl(45 90% 58%)) drop-shadow(0 0 16px hsl(30 100% 50% / 0.5))",
-                        }}
+          {/* Three candles on a cake base */}
+          <div className="relative inline-flex flex-col items-center">
+            <div className="flex items-end justify-center gap-10 mb-3">
+              {[0, 1, 2].map((i) => {
+                const isLit = i >= candlesBlown;
+                const isNext = i === candlesBlown;
+                const color = candleColors[i];
+                return (
+                  <button
+                    key={i}
+                    onClick={() => handleCandleClick(i)}
+                    disabled={!isNext}
+                    className={`group relative flex flex-col items-center transition-all duration-300 focus:outline-none ${
+                      isNext ? "cursor-pointer scale-110" : isLit ? "cursor-default opacity-50" : "cursor-default"
+                    }`}
+                    aria-label={`Candle ${i + 1}`}
+                  >
+                    {/* Flame */}
+                    {isLit && (
+                      <div className="relative mb-1">
+                        <div
+                          className="w-3.5 h-5 rounded-[50%] animate-candle-flicker"
+                          style={{
+                            background: "radial-gradient(ellipse at 50% 80%, hsl(50 100% 90%), hsl(45 100% 65%) 40%, hsl(25 100% 50%) 70%, transparent)",
+                            filter: "drop-shadow(0 0 10px hsl(45 90% 58%)) drop-shadow(0 0 20px hsl(30 100% 50% / 0.4))",
+                          }}
+                        />
+                        {isNext && (
+                          <div className="absolute -inset-4 rounded-full animate-ping opacity-20"
+                            style={{ background: `radial-gradient(circle, ${color.body}, transparent)` }}
+                          />
+                        )}
+                      </div>
+                    )}
+                    {!isLit && (
+                      <div className="mb-1 h-5 flex items-center">
+                        <span className="text-sm opacity-60">💨</span>
+                      </div>
+                    )}
+                    {/* Candle body */}
+                    <div
+                      className="w-3.5 h-12 rounded-t-sm rounded-b-md transition-all"
+                      style={{
+                        background: isLit
+                          ? `linear-gradient(to bottom, ${color.body}, ${color.tip})`
+                          : "linear-gradient(to bottom, hsl(0 0% 50%), hsl(0 0% 35%))",
+                        boxShadow: isLit ? `0 0 16px ${color.body.replace(")", " / 0.25)")}` : "none",
+                      }}
+                    />
+                    {/* Wax drip */}
+                    {isLit && (
+                      <div className="w-2 h-1 rounded-b-full opacity-50"
+                        style={{ background: color.body }}
                       />
-                      {isNext && (
-                        <div className="absolute -inset-3 rounded-full bg-secondary/10 animate-ping" />
-                      )}
-                    </div>
-                  )}
-                  {!isLit && (
-                    <div className="mb-1 h-4 flex items-center">
-                      <span className="text-xs">💨</span>
-                    </div>
-                  )}
-                  {/* Candle body */}
-                  <div
-                    className="w-3 h-10 rounded-t-sm rounded-b-md transition-all"
-                    style={{
-                      background: isLit
-                        ? `linear-gradient(to bottom, ${
-                            i === 0 ? "hsl(320 60% 65%)" : i === 1 ? "hsl(270 60% 65%)" : "hsl(200 60% 65%)"
-                          }, ${
-                            i === 0 ? "hsl(320 50% 50%)" : i === 1 ? "hsl(270 50% 50%)" : "hsl(200 50% 50%)"
-                          })`
-                        : "linear-gradient(to bottom, hsl(0 0% 60%), hsl(0 0% 45%))",
-                      boxShadow: isLit ? "0 0 12px rgba(168,85,247,0.2)" : "none",
-                    }}
-                  />
-                  {/* Base */}
-                  <div className="w-5 h-1.5 rounded-b-sm bg-secondary/30 mt-0.5" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
 
-                  {/* Number label */}
-                  <span className="mt-2 text-[10px] font-arabic text-muted-foreground/40">
-                    {i + 1}
-                  </span>
-                </button>
-              );
-            })}
+            {/* Cake */}
+            <div className="text-5xl select-none mt-1">🎂</div>
           </div>
 
-          {/* Cake */}
-          <div className="text-5xl select-none">🎂</div>
-
-          {/* Progress indicator */}
-          <div className="flex gap-1.5 justify-center mt-4">
+          {/* Progress dots */}
+          <div className="flex gap-2 justify-center mt-5">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
                 className="h-1 rounded-full transition-all duration-500"
                 style={{
-                  width: candlesBlown > i ? "24px" : "8px",
-                  background:
-                    candlesBlown > i
-                      ? "hsl(var(--secondary))"
-                      : "hsl(var(--muted-foreground) / 0.2)",
+                  width: candlesBlown > i ? "28px" : "8px",
+                  background: candlesBlown > i
+                    ? "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)))"
+                    : "hsl(var(--muted-foreground) / 0.15)",
                 }}
               />
             ))}
           </div>
 
           {allBlown && (
-            <p className="mt-4 font-arabic text-sm text-secondary/70 animate-fade-in font-medium">
+            <p className="mt-5 font-panorama text-base text-secondary/80 animate-fade-in">
               🎉 نفختي الشمعات! تمنى أمنية
             </p>
           )}
 
-          {confettiCount > 0 && !allBlown && (
-            <p className="mt-3 font-arabic text-xs text-muted-foreground/40">
+          {!allBlown && candlesBlown > 0 && (
+            <p className="mt-4 font-panorama text-xs text-muted-foreground/35">
               {3 - candlesBlown} شمعات باقيين...
             </p>
           )}
