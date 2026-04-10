@@ -156,7 +156,7 @@ const OpeningScreen = ({ onOpen }: Props) => {
             </div>
           </button>
 
-          <p className="mt-8 text-lg text-muted-foreground tracking-wide animate-fade-in font-light">
+          <p className="mt-8 text-lg text-muted-foreground tracking-wide animate-fade-in font-arabic font-medium">
             إضغط على الهدية 🎁
           </p>
           <div className="mt-2 flex gap-1">

@@ -119,7 +119,7 @@ const BirthdayPage = () => {
           {/* Shimmer line + subtitle */}
           <div className={`transition-all duration-1000 ${heroStage >= 5 ? "opacity-100" : "opacity-0"}`}>
             <div className="w-40 h-[1px] mx-auto mt-8 mb-4 animate-shimmer rounded-full" />
-            <p className="text-sm text-muted-foreground/50 tracking-wider">
+            <p className="text-sm text-muted-foreground/50 tracking-wider font-arabic">
               🎂 عيد ميلاد سعيد 🎂
             </p>
             {/* Scroll hint */}
