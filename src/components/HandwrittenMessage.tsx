@@ -227,7 +227,7 @@ const HandwrittenMessage = forwardRef<HTMLDivElement, Props>(({ revealed }, ref)
                 />
               </div>
               <p className="font-panorama text-base" style={{ color: "hsl(45 70% 65% / 0.7)" }}>
-                صديقك الغالي 🤝
+                We can’t change the past. What we can do is choose how we move forward
               </p>
             </div>
           </div>
