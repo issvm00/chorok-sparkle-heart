@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import AuroraCanvas from "./AuroraCanvas";
 import ParticleCanvas from "./ParticleCanvas";
 import OpeningScreen from "./OpeningScreen";
-import MusicPlayer from "./MusicPlayer";
+import MusicPlayer, { MusicPlayerHandle } from "./MusicPlayer";
 import HeroSection from "./HeroSection";
 import PhotoReveal from "./PhotoReveal";
 import WishLanterns from "./WishLanterns";
@@ -23,12 +23,20 @@ const BirthdayPage = () => {
   const messageRef = useRef<HTMLDivElement>(null);
   const songsRef = useRef<HTMLDivElement>(null);
   const finaleRef = useRef<HTMLDivElement>(null);
+  const musicPlayerRef = useRef<MusicPlayerHandle>(null);
 
   const handleOpen = useCallback(() => {
     setOpened(true);
   }, []);
 
-  // Intersection observer for scroll reveals
+  const handleSongPlayState = useCallback((isPlaying: boolean) => {
+    if (isPlaying) {
+      musicPlayerRef.current?.pause();
+    } else {
+      musicPlayerRef.current?.resume();
+    }
+  }, []);
+
   useEffect(() => {
     if (!opened) return;
     const observer = new IntersectionObserver(
@@ -45,8 +53,8 @@ const BirthdayPage = () => {
       { threshold: 0.15 }
     );
 
-    [photoRef, wishRef, messageRef, songsRef, finaleRef].forEach((ref) => {
-      if (ref.current) observer.observe(ref.current);
+    [photoRef, wishRef, messageRef, songsRef, finaleRef].forEach((r) => {
+      if (r.current) observer.observe(r.current);
     });
 
     return () => observer.disconnect();
@@ -58,13 +66,13 @@ const BirthdayPage = () => {
     <div className="min-h-screen bg-background relative overflow-x-hidden">
       <AuroraCanvas />
       <ParticleCanvas />
-      <MusicPlayer autoPlay />
+      <MusicPlayer ref={musicPlayerRef} autoPlay />
 
       <HeroSection />
       <PhotoReveal ref={photoRef} revealed={photoRevealed} />
       <WishLanterns ref={wishRef} revealed={wishRevealed} />
       <HandwrittenMessage ref={messageRef} revealed={messageRevealed} />
-      <DedicatedSongs ref={songsRef} revealed={songsRevealed} />
+      <DedicatedSongs ref={songsRef} revealed={songsRevealed} onPlayStateChange={handleSongPlayState} />
       <FinaleSection ref={finaleRef} revealed={finaleRevealed} />
     </div>
   );

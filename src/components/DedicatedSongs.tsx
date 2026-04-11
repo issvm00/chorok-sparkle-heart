@@ -2,6 +2,7 @@ import { forwardRef, useState, useRef, useEffect, useCallback } from "react";
 
 interface Props {
   revealed: boolean;
+  onPlayStateChange?: (isPlaying: boolean) => void;
 }
 
 const SONGS = [
@@ -10,7 +11,7 @@ const SONGS = [
   { title: "الأغنية الثالثة", file: "/music/chorouk_3.mp3", emoji: "🎼", color: "hsl(200 70% 55%)" },
 ];
 
-const DedicatedSongs = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => {
+const DedicatedSongs = forwardRef<HTMLDivElement, Props>(({ revealed, onPlayStateChange }, ref) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [progress, setProgress] = useState<number[]>([0, 0, 0]);
   const [durations, setDurations] = useState<number[]>([0, 0, 0]);
@@ -37,8 +38,12 @@ const DedicatedSongs = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => 
     return () => cancelAnimationFrame(animRef.current);
   }, [activeIndex, updateProgress]);
 
+  // Notify parent of play state
+  useEffect(() => {
+    onPlayStateChange?.(activeIndex !== null);
+  }, [activeIndex, onPlayStateChange]);
+
   const handlePlay = (index: number) => {
-    // Pause all others
     audioRefs.current.forEach((audio, i) => {
       if (audio && i !== index) {
         audio.pause();
@@ -95,6 +100,13 @@ const DedicatedSongs = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => 
     const x = e.clientX - rect.left;
     const pct = x / rect.width;
     audio.currentTime = pct * audio.duration;
+  };
+
+  const handleDownload = (song: typeof SONGS[0]) => {
+    const a = document.createElement("a");
+    a.href = song.file;
+    a.download = song.file.split("/").pop() || "song.mp3";
+    a.click();
   };
 
   return (
@@ -228,14 +240,31 @@ const DedicatedSongs = forwardRef<HTMLDivElement, Props>(({ revealed }, ref) => 
                       />
                     </div>
 
-                    {/* Time */}
-                    <div className="flex justify-between">
+                    {/* Time + Download */}
+                    <div className="flex justify-between items-center">
                       <span
                         className="text-[10px] font-mono"
                         style={{ color: "hsl(var(--muted-foreground) / 0.4)" }}
                       >
                         {formatTime(currentTime)}
                       </span>
+
+                      {/* Download button */}
+                      <button
+                        onClick={() => handleDownload(song)}
+                        className="p-1 rounded-full transition-all duration-300 hover:scale-110 active:scale-90"
+                        style={{
+                          color: isActive ? "hsl(45 80% 70%)" : "hsl(var(--muted-foreground) / 0.35)",
+                        }}
+                        title="تحميل"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                      </button>
+
                       <span
                         className="text-[10px] font-mono"
                         style={{ color: "hsl(var(--muted-foreground) / 0.4)" }}
