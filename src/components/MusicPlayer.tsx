@@ -1,12 +1,36 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
+
+export interface MusicPlayerHandle {
+  pause: () => void;
+  resume: () => void;
+}
 
 interface Props {
   autoPlay?: boolean;
 }
 
-const MusicPlayer = ({ autoPlay = false }: Props) => {
+const MusicPlayer = forwardRef<MusicPlayerHandle, Props>(({ autoPlay = false }, ref) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
+  const wasPlayingRef = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    pause: () => {
+      if (audioRef.current && playing) {
+        wasPlayingRef.current = true;
+        audioRef.current.pause();
+        setPlaying(false);
+      }
+    },
+    resume: () => {
+      if (audioRef.current && wasPlayingRef.current) {
+        wasPlayingRef.current = false;
+        audioRef.current.volume = 0.4;
+        audioRef.current.play().catch(() => {});
+        setPlaying(true);
+      }
+    },
+  }));
 
   useEffect(() => {
     if (autoPlay && audioRef.current) {
@@ -19,6 +43,7 @@ const MusicPlayer = ({ autoPlay = false }: Props) => {
     if (!audioRef.current) return;
     if (playing) {
       audioRef.current.pause();
+      wasPlayingRef.current = false;
     } else {
       audioRef.current.volume = 0.4;
       audioRef.current.play();
@@ -38,6 +63,7 @@ const MusicPlayer = ({ autoPlay = false }: Props) => {
       </button>
     </>
   );
-};
+});
 
+MusicPlayer.displayName = "MusicPlayer";
 export default MusicPlayer;
